@@ -83,6 +83,58 @@ class CPU:
                 self.fl = 0b00000010
             if self.reg[reg_a] < self.reg[reg_b]:
                 self.fl = 0b00000100
+        
+        # ---------------- STRETCH START ------------------ #
+        elif op == "AND":
+            """Bitwise-AND the values in registerA and registerB, then store the result in registerA."""
+            valueA = self.reg[reg_a]
+            valueB = self.reg[reg_b]
+
+            self.reg[reg_a] = valueA & valueB
+
+        elif op == "OR":
+            """Perform a bitwise-OR between the values in registerA and registerB, storing the result in registerA."""
+            valueA = self.reg[reg_a]
+            valueB = self.reg[reg_b]
+
+            self.reg[reg_a] = valueA | valueB
+
+        elif op == "XOR":
+            """Perform a bitwise-XOR between the values in registerA and registerB, storing the result in registerA."""
+            valueA = self.reg[reg_a]
+            valueB = self.reg[reg_b]
+
+            self.reg[reg_a] = valueA ^ valueB
+
+        elif op == "NOT":
+            """Perform a bitwise-NOT on the value in a register."""
+            register = reg_a
+            value = self.reg[register]
+
+            self.reg[register] = ~value
+
+        elif op == "SHL":
+            """Shift the value in registerA left by the number of bits specified in registerB, filling the low bits with 0."""
+            valueA = self.reg[reg_a]
+            number_of_bits = self.reg[reg_b]
+
+            self.reg[reg_a] = (valueA << number_of_bits) % 255
+
+        elif op == "SHR":
+            """Shift the value in registerA right by the number of bits specified in registerB, filling the high bits with 0."""
+            valueA = self.reg[reg_a]
+            number_of_bits = self.reg[reg_b]
+
+            self.reg[reg_a] = (valueA >> number_of_bits) % 255
+
+        elif op == "MOD":
+            """Divide the value in the first register by the value in the second, storing the _remainder_ of the result in registerA."""
+            valueA = self.reg[reg_a]
+            valueB = self.reg[reg_b]
+
+            self.reg[reg_a] = valueA % valueB
+
+        # ---------------- STRETCH END ------------------ #
 
         else:
             raise Exception("Unsupported ALU operation")
@@ -160,22 +212,34 @@ class CPU:
         self.alu("CMP", operand_a, operand_b)
 
     def handle_JMP(self):
+        # Get the register number
         reg = self.ram_read(self.pc + 1)
+
+        # Get the address to jump to from the register
         address = self.reg[reg]
+        # Look at register and jump to that address
         self.pc = address
 
     def handle_JEQ(self):
+        # Get the register number
         reg = self.ram_read(self.pc + 1)
+
+        # Get the address to jump to from the register
         address = self.reg[reg]
         if self.fl == 0b00000001:
+            # Look at register and jump to that address
             self.pc = address
         else:
             self.pc += 2
 
     def handle_JNE(self):
+        # Get the register number
         reg = self.ram_read(self.pc + 1)
+
+        # Get the address to jump to from the register
         address = self.reg[reg]
         if self.fl != 0b00000001:
+            # Look at register and jump to that address
             self.pc = address
         else:
             self.pc += 2
